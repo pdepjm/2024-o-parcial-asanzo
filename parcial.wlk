@@ -6,9 +6,9 @@ class Agente {
   var estrategiaDeVenta
   
   // 1a)
-  method venderA(paquete, cliente) {
-    if (!cliente.puedeCostear(paquete)) {
-      throw new DomainException(message = "El cliente no puede costear el paquete")
+  method venderA(paquete, alma) {
+    if (!alma.puedeCostear(paquete)) {
+      throw new DomainException(message = "El alma no puede costear el paquete")
     }
     paquetesVendidos.add(paquete)
   }
@@ -32,8 +32,8 @@ class Agente {
   method pagoSuDeuda() = self.deuda() == 0
   
   // 4)
-  method atender(cliente) {
-    self.venderA(estrategiaDeVenta.paquetePara(cliente), cliente)
+  method atender(alma) {
+    self.venderA(estrategiaDeVenta.paquetePara(alma), alma)
   }
 
   // 4c)
@@ -48,13 +48,13 @@ object departamentoDeLaMuerte {
   const agentes = []
   
   // 1b)
-  method mejorEmpleado() = agentes.max(
+  method mejorAgente() = agentes.max(
     { agente => agente.cantidadPaquetesVendidos() }
   )
   
   // 2)
   method diaDeLosMuertos() {
-    self.mejorEmpleado().reducirDeudaInicial(50)
+    self.mejorAgente().reducirDeudaInicial(50)
     agentes.removeAll(self.agentesQueCumplieronDeuda())
     agentes.forEach({ agente => agente.aumentarDeuda(100) })
     // las dos líneas anteriores podrían ser un solo foreach con un if, no estaría mal, si está bien delegado.
@@ -65,28 +65,28 @@ object departamentoDeLaMuerte {
 
 // Punto 3), paquetes:
 class Paquete {
-  method costoPara(cliente) = (100 * self.cuantoReduceA(cliente)).min(350)
+  method costoPara(alma) = (100 * self.cuantoReduceA(alma)).min(350)
   
-  method cuantoReduceA(cliente)
+  method cuantoReduceA(alma)
 }
 
 object tren inherits Paquete {
-  override method cuantoReduceA(cliente) = 4
+  override method cuantoReduceA(alma) = 4
 }
 
 class Bote inherits Paquete {  
-  override method cuantoReduceA(cliente) = (cliente.accionesBuenas() / 50).min(2)
+  override method cuantoReduceA(alma) = (alma.accionesBuenas() / 50).min(2)
 }
 
 object palo inherits Paquete {
-  override method cuantoReduceA(cliente) = 0.05
+  override method cuantoReduceA(alma) = 0.05
 }
 
 object crucero inherits Bote {
-  override method cuantoReduceA(cliente) = super(cliente) * 2
+  override method cuantoReduceA(alma) = super(alma) * 2
 }
 
-class Cliente {
+class Alma {
   const dinero
   const cantAccionesBuenas
 
@@ -103,12 +103,12 @@ class Cliente {
 const paquetes = [tren, new Bote(), crucero, palo]
 
 object clasico {
-  method paquetePara(cliente) = paquetes.max( { e => e.costoPara(cliente)})
+  method paquetePara(alma) = paquetes.max( { e => e.costoPara(alma)})
 }
 object navegante {
-  method paquetePara(cliente) = if (cliente.cantAccionesBuenas() > 50) crucero else new Bote()
+  method paquetePara(alma) = if (alma.cantAccionesBuenas() > 50) crucero else new Bote()
 }
 
 object indiferente {  
-  method paquetePara(cliente) = paquetes.anyOne()
+  method paquetePara(alma) = paquetes.anyOne()
 }
