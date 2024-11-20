@@ -1,0 +1,11 @@
+// Apellido y Nombre:
+
+import parcial.*
+
+describe "parcial" {
+
+  test "parcial" {
+    assert.equals(1, 1)
+  }
+
+}
