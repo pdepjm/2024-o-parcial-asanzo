@@ -2,10 +2,57 @@
 
 import parcial.*
 
-describe "parcial" {
+describe "tests punto 5), un agente con estrategia navegante" {
+  const almaCaro = new Alma(cantAccionesBuenas=230, dinero=0)
+  const almaDelfi = new Alma(cantAccionesBuenas=50, dinero=0)
+  test "Cuando el alma tiene más de 50 acciones, le corresponde un paquete crucero" {
+    // Como el equals compara por identidad, esto no se puede hacer, que es lo ideal:
+    // assert.equals(new Crucero(basico=100), navegante.paquetePara(almaCaro))
+    // Sin embargo, lo anterior está bien en el parcial.
+    // La forma correcta de resolverlo es definiendo el método equals() en los paquetes.
+    // Por simplicidad, usamos una solución parche en este ejemplo, que usa
+    // Un método que no deberíamos usar fuera de los tests jamás, porque es interno del lenguaje:
+    assert.equals("parcial.Crucero", navegante.paquetePara(almaCaro).className())
+  }
 
-  test "parcial" {
-    assert.equals(1, 1)
+  test "Cuando el alma tiene menos de 50 acciones, le corresponde un paquete bote" {
+    //assert.equals(new Bote(basico=100), navegante.paquetePara(almaDelfi))
+    // Ver comentarios en el test de arriba.
+    assert.equals("parcial.Bote", navegante.paquetePara(almaDelfi).className())
   }
 
 }
+
+// Tests adicionales posibles
+
+describe "Tests de ventas" {
+  const agenteYayo = new Agente(deudaInicial=120)
+  const agenteZeta = new Agente(deudaInicial=50)
+  const crucero = new Crucero(basico=100)
+  const palo = new Palo(basico=100)
+  const almaAna = new Alma(cantAccionesBuenas=150, dinero=0)
+  const almaPepe = new Alma(cantAccionesBuenas=40, dinero=500)
+
+  test "Se calcula correctamente la deuda de un agente"{
+    assert.equals(120, agenteYayo.deuda())
+  }
+  test "Al hacer una venta se disminuye la deuda de un agente"{
+    agenteYayo.venderA(palo, almaAna)
+    assert.equals(20, agenteYayo.deuda())
+  }
+
+  test "El total ganado por un agente es la suma de los costos de los paquetes vendidos"{
+    agenteYayo.venderA(palo, almaAna)
+    agenteYayo.venderA(crucero, almaPepe)
+    assert.equals(260, agenteYayo.dineroGanado())
+  }
+
+  test "El mejor agente del departamento es el que más paquetes vendió"{
+    departamentoDeLaMuerte.agregarAgente(agenteYayo)
+    departamentoDeLaMuerte.agregarAgente(agenteZeta)
+    agenteYayo.venderA(palo, almaAna)
+    assert.equals(agenteYayo, departamentoDeLaMuerte.mejorAgente())
+  }
+}
+
+// Sería interesante tener tests de cálculos de años y costos de los paquetes.

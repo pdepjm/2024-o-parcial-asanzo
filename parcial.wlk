@@ -2,8 +2,8 @@
 // Apellido y Nombre: 
 class Agente {
   var deudaInicial
-  const paquetesVendidos
-  var estrategiaDeVenta
+  const paquetesVendidos = []
+  var estrategiaDeVenta = clasico
   
   // 1a)
   method venderA(paquete, alma) {
@@ -11,6 +11,7 @@ class Agente {
       throw new DomainException(message = "El alma no puede costear el paquete")
     }
     paquetesVendidos.add(paquete)
+    paquete.almaFinal(alma) // para luego poder consultar el costo sin necesitar el alma. Una mejor forma de modelar esto es tener una clase Venta que conozca el paquete y el alma, y el Agente se guarda las ventas, en lugar de los paquetes.
   }
   
   method paquetesVendidos() = paquetesVendidos
@@ -19,7 +20,7 @@ class Agente {
   method deuda() = deudaInicial - self.dineroGanado() // podría tener una deuda que se actualice también.
   
   // 1c)
-  method dineroGanado() = paquetesVendidos.sum({ paquete => paquete.costo() })
+  method dineroGanado() = paquetesVendidos.sum({ paquete => paquete.costoDeVenta() })
   
   method reducirDeudaInicial(cantidad) {
     deudaInicial -= cantidad
@@ -46,11 +47,15 @@ class Agente {
 
 object departamentoDeLaMuerte {
   const agentes = []
-  
+  const property paquetesPredefinidos = [new Tren(basico=100), new Crucero(basico=40)] //ejemplos
   // 1b)
   method mejorAgente() = agentes.max(
     { agente => agente.cantidadPaquetesVendidos() }
   )
+
+  method agregarAgente(a) {
+    agentes.add(a)
+  }
   
   // 2)
   method diaDeLosMuertos() {
@@ -65,24 +70,28 @@ object departamentoDeLaMuerte {
 
 // Punto 3), paquetes:
 class Paquete {
-  method costoPara(alma) = (100 * self.cuantoReduceA(alma)).min(350)
-  
+  const basico
+  var property almaFinal = null // ver comentario en el método venderA del Agente.
+
+  method costoPara(alma) = (basico * self.cuantoReduceA(alma)).min(350)
+  method costoDeVenta() = self.costoPara(almaFinal)
   method cuantoReduceA(alma)
 }
 
-object tren inherits Paquete {
+class Tren inherits Paquete {
   override method cuantoReduceA(alma) = 4
 }
 
 class Bote inherits Paquete {  
-  override method cuantoReduceA(alma) = (alma.accionesBuenas() / 50).min(2)
+  override method cuantoReduceA(alma) = (alma.cantAccionesBuenas() / 50).min(2)
 }
 
-object palo inherits Paquete {
+class Palo inherits Paquete {
   override method cuantoReduceA(alma) = 0.05
+  override method costoPara(alma) = basico
 }
 
-object crucero inherits Bote {
+class Crucero inherits Bote {
   override method cuantoReduceA(alma) = super(alma) * 2
 }
 
@@ -100,15 +109,15 @@ class Alma {
 
 // Estrategias punto 4:
 
-const paquetes = [tren, new Bote(), crucero, palo]
-
 object clasico {
-  method paquetePara(alma) = paquetes.max( { e => e.costoPara(alma)})
+  method paquetePara(alma) = departamentoDeLaMuerte.paquetesPredefinidos().max( { p => p.costoPara(alma)})
 }
 object navegante {
-  method paquetePara(alma) = if (alma.cantAccionesBuenas() > 50) crucero else new Bote()
+  method paquetePara(alma) = if (alma.cantAccionesBuenas() > 50) 
+    new Crucero(basico=alma.cantAccionesBuenas()) 
+    else new Bote(basico=alma.cantAccionesBuenas())
 }
 
 object indiferente {  
-  method paquetePara(alma) = paquetes.anyOne()
+  method paquetePara(alma) = new Palo(basico=1.randomUpTo(300))
 }
