@@ -1,7 +1,7 @@
 // Apellido y Nombre: 
 // Apellido y Nombre: 
 class Agente {
-  var deudaInicial
+  const deudaInicial
   const ventas = []
   var estrategiaDeVenta = clasico
   
@@ -20,10 +20,6 @@ class Agente {
   
   // 1c)
   method dineroGanado() = ventas.sum({ venta => venta.costo() })
-  
-  method reducirDeudaInicial(cantidad) {
-    deudaInicial -= cantidad
-  }
   
   method pagoSuDeuda() = self.deuda() <= 0
   
@@ -65,8 +61,8 @@ object departamentoDeLaMuerte {
 }
 
 class Venta {
-  const property alma
-  const property paquete
+  const alma
+  const paquete
 
   method costo() = paquete.costoPara(alma) 
 }
