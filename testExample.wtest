@@ -7,18 +7,18 @@ describe "tests punto 5), un agente con estrategia navegante" {
   const almaDelfi = new Alma(cantAccionesBuenas=50, dinero=0)
   test "Cuando el alma tiene más de 50 acciones, le corresponde un paquete crucero" {
     // Como el equals compara por identidad, esto no se puede hacer, que es lo ideal:
-    // assert.equals(new Crucero(basico=100), navegante.paquetePara(almaCaro))
+    // assert.equals(new Crucero(basico=230), navegante.paquetePara(almaCaro))
     // Sin embargo, lo anterior está bien en el parcial.
     // La forma correcta de resolverlo es definiendo el método equals() en los paquetes.
-    // Por simplicidad, usamos una solución parche en este ejemplo, que usa
-    // Un método que no deberíamos usar fuera de los tests jamás, porque es interno del lenguaje:
-    assert.equals("parcial.Crucero", navegante.paquetePara(almaCaro).className())
+    // Por simplicidad, usamos una solución parche en este ejemplo, que le pregunta al
+    // paquete cuánto reduce para identificar si es crucero o bote
+    assert.equals(4, navegante.paquetePara(almaCaro).cuantoReduceA(almaCaro))
   }
 
   test "Cuando el alma tiene menos de 50 acciones, le corresponde un paquete bote" {
-    //assert.equals(new Bote(basico=100), navegante.paquetePara(almaDelfi))
+    //assert.equals(new Bote(basico=50), navegante.paquetePara(almaDelfi))
     // Ver comentarios en el test de arriba.
-    assert.equals("parcial.Bote", navegante.paquetePara(almaDelfi).className())
+    assert.equals(1, navegante.paquetePara(almaDelfi).cuantoReduceA(almaDelfi))
   }
 
 }
