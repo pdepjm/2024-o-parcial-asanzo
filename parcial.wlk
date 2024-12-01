@@ -25,11 +25,7 @@ class Agente {
     deudaInicial -= cantidad
   }
   
-  method Inicial(cantidad) {
-    deudaInicial += cantidad
-  }
-  
-  method pagoSuDeuda() = self.deuda() == 0
+  method pagoSuDeuda() = self.deuda() <= 0
   
   // 4)
   method atender(alma) {
@@ -78,7 +74,6 @@ class Venta {
 // Punto 3), paquetes:
 class Paquete {
   const basico
-  var property almaFinal = null // ver comentario en el método venderA del Agente.
 
   method costoPara(alma) = (basico * self.cuantoReduceA(alma)).min(350)
   method cuantoReduceA(alma)
