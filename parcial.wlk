@@ -2,7 +2,7 @@
 // Apellido y Nombre: 
 class Agente {
   var deudaInicial
-  const paquetesVendidos = []
+  const ventas = []
   var estrategiaDeVenta = clasico
   
   // 1a)
@@ -10,17 +10,16 @@ class Agente {
     if (!alma.puedeCostear(paquete)) {
       throw new DomainException(message = "El alma no puede costear el paquete")
     }
-    paquetesVendidos.add(paquete)
-    paquete.almaFinal(alma) // para luego poder consultar el costo sin necesitar el alma. Una mejor forma de modelar esto es tener una clase Venta que conozca el paquete y el alma, y el Agente se guarda las ventas, en lugar de los paquetes.
-  }
-  
-  method paquetesVendidos() = paquetesVendidos
-  
+    ventas.add(new Venta(paquete=paquete, alma=alma)) 
+    // esta es la forma de que funcionen todos los puntos posteriores, creando un objeto venta,
+    // que registra qué paquete le fue a qué alma. Sino el punto 4 de los paquetes
+    // predefinidos no se podría hacer.
+  }  
   // 1d)
   method deuda() = deudaInicial - self.dineroGanado() // podría tener una deuda que se actualice también.
   
   // 1c)
-  method dineroGanado() = paquetesVendidos.sum({ paquete => paquete.costoDeVenta() })
+  method dineroGanado() = ventas.sum({ venta => venta.costo() })
   
   method reducirDeudaInicial(cantidad) {
     deudaInicial -= cantidad
@@ -42,12 +41,13 @@ class Agente {
     estrategiaDeVenta = estrategia
   }
   
-  method cantidadPaquetesVendidos() = paquetesVendidos.size()
+  method cantidadPaquetesVendidos() = ventas.size()
 }
 
 object departamentoDeLaMuerte {
   const agentes = []
-  const property paquetesPredefinidos = [new Tren(basico=100), new Crucero(basico=40)] //ejemplos
+  var property paquetesPredefinidos = [new Tren(basico=100), new Crucero(basico=40)] //ejemplos
+
   // 1b)
   method mejorAgente() = agentes.max(
     { agente => agente.cantidadPaquetesVendidos() }
@@ -68,13 +68,19 @@ object departamentoDeLaMuerte {
   method agentesQueCumplieronDeuda() = agentes.filter({agente => agente.pagoSuDeuda()})
 }
 
+class Venta {
+  const property alma
+  const property paquete
+
+  method costo() = paquete.costoPara(alma) 
+}
+
 // Punto 3), paquetes:
 class Paquete {
   const basico
   var property almaFinal = null // ver comentario en el método venderA del Agente.
 
   method costoPara(alma) = (basico * self.cuantoReduceA(alma)).min(350)
-  method costoDeVenta() = self.costoPara(almaFinal)
   method cuantoReduceA(alma)
 }
 
@@ -110,7 +116,8 @@ class Alma {
 // Estrategias punto 4:
 
 object clasico {
-  method paquetePara(alma) = departamentoDeLaMuerte.paquetesPredefinidos().max( { p => p.costoPara(alma)})
+  method paquetesCosteables(alma) = departamentoDeLaMuerte.paquetesPredefinidos().filter({paq => alma.puedeCostear(paq)})
+  method paquetePara(alma) = self.paquetesCosteables(alma).max( { p => p.costoPara(alma)})
 }
 object navegante {
   method paquetePara(alma) = if (alma.cantAccionesBuenas() > 50) 
