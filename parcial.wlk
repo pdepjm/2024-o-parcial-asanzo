@@ -11,9 +11,9 @@ class Agente {
       throw new DomainException(message = "El alma no puede costear el paquete")
     }
     ventas.add(new Venta(paquete=paquete, alma=alma)) 
-    // esta es la forma de que funcionen todos los puntos posteriores, creando un objeto venta,
-    // que registra qué paquete le fue a qué alma. Sino el punto 4 de los paquetes
-    // predefinidos no se podría hacer.
+    // esta es una forma de que funcionen todos los puntos posteriores, creando un objeto venta,
+    // que registra qué paquete le fue a qué alma. El punto 4 de los paquetes
+    // predefinidos queda mejor de esta manera.
   }  
   // 1d)
   method deuda() = deudaInicial - self.dineroGanado() // podría tener una deuda que se actualice también.
@@ -55,6 +55,7 @@ object departamentoDeLaMuerte {
     agentes.removeAll(self.agentesQueCumplieronDeuda())
     agentes.forEach({ agente => agente.aumentarDeuda(100) })
     // las dos líneas anteriores podrían ser un solo foreach con un if, no estaría mal, si está bien delegado.
+    // tambien con el método removeAllSuchThat
   }
 
   method agentesQueCumplieronDeuda() = agentes.filter({agente => agente.pagoSuDeuda()})
